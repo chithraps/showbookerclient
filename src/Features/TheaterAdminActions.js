@@ -10,5 +10,6 @@ export const loginTM =
     dispatch(setTheaterAdminAccessToken(theaterAdminAccessToken));
   };
 export const logoutTM = () => (dispatch) => {
+  console.log("logoutTm called")
   dispatch(logoutTheaterAdmin());
 };

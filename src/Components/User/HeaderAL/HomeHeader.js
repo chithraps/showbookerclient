@@ -18,6 +18,7 @@ function HomeHeader() {
   const handleBookings = () => {
     // Handle bookings action
     console.log('Bookings clicked');
+    navigate('/edit-profile')
   };
 
   const handleLogout = () => {

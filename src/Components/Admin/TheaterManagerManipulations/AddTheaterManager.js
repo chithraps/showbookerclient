@@ -1,23 +1,26 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Navbar from "../Dashboard/Navbar"
-
+import Navbar from "../Dashboard/Navbar";
+import { useSelector } from "react-redux";
 function AddTheaterManager() {
   const [email, setEmail] = useState("");
   const [theaterName, setTheaterName] = useState("");
   const [theaters, setTheaters] = useState([]);
-  const [responseMessage,setResponseMessage] = useState('');
-  
+  const [responseMessage, setResponseMessage] = useState("");
+  const admin = useSelector((state) => state.admin);
+  const adminAccessToken = admin.adminAccessToken;
   useEffect(() => {
     const fetchTheaters = async () => {
       try {
         const baseUrl = process.env.REACT_APP_BASE_URL;
-        const response = await axios.get(
-          `${baseUrl}/admin/viewTheaters`
-        );
-        console.log(response.data)
-        setTheaters(response.data);
-        
+        const response = await axios.get(`${baseUrl}/admin/viewTheaters`, {
+          headers: {
+            Authorization: `Bearer ${adminAccessToken}`,
+          },
+        });
+        console.log(response.data);
+
+        setTheaters(response.data.theaters);
       } catch (error) {
         console.error("Error fetching theaters:", error);
       }
@@ -35,22 +38,26 @@ function AddTheaterManager() {
         {
           email,
           theaterName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${adminAccessToken}`,
+          },
         }
       );
       if (response.status === 201) {
-        setResponseMessage(response.data.message)
+        setResponseMessage(response.data.message);
         setEmail("");
         setTheaterName("");
       } else {
-        setResponseMessage("Failed to create theater manager")
-        
+        setResponseMessage("Failed to create theater manager");
       }
     } catch (error) {
       console.error("Error creating theater manager:", error);
-      setResponseMessage("Error creating theater manager")
-      
+      setResponseMessage("Error creating theater manager");
     }
   };
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Navbar />
@@ -71,8 +78,7 @@ function AddTheaterManager() {
                 Email
               </label>
               <input
-                type="text"
-                name="Email"
+                type="email"
                 id="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -90,6 +96,7 @@ function AddTheaterManager() {
               <select
                 value={theaterName}
                 onChange={(e) => setTheaterName(e.target.value)}
+                className="w-full py-2 px-3 border rounded"
                 required
               >
                 <option value="">Select Theater</option>
@@ -109,7 +116,7 @@ function AddTheaterManager() {
                 Submit
               </button>
             </div>
-            {responseMessage && ( 
+            {responseMessage && (
               <div className="mt-4 text-center">
                 <p
                   className={

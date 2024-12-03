@@ -16,7 +16,13 @@ function Navbar() {
   return (
     <div className="h-full flex flex-col bg-gray-800 text-white w-64 p-4 fixed top-0 left-0">
       <div className="mb-4">
-        <h2 className="text-2xl font-bold">Dashboard</h2>
+      <NavLink
+          to="/admin/home"
+          className="text-2xl font-bold"
+          activeClassName="text-yellow-400"
+        >
+          Dashboard
+        </NavLink>
       </div>
       <nav className="flex flex-col space-y-2">
         <NavLink
@@ -34,12 +40,20 @@ function Navbar() {
         >
           View Theaters
         </NavLink>
+        
         <NavLink
-          to="/admin/addTheater"
+          to="/admin/viewGenres"
           className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
           activeClassName="bg-gray-900"
         >
-          Add Theaters
+         Genre
+        </NavLink>
+        <NavLink
+          to="/admin/viewMovies"
+          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
+          activeClassName="bg-gray-900"
+        >
+          Movies
         </NavLink>
         <NavLink
           to="/admin/addTheaterManager"
@@ -54,14 +68,14 @@ function Navbar() {
           activeClassName="bg-gray-900"
         >
           View Bookings
-        </NavLink>
+        </NavLink>   
         <NavLink
-          to="/admin/manageFeedback"
+          to="/admin/manageBannerImage"
           className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
           activeClassName="bg-gray-900"
         >
-          Manage Feedback
-        </NavLink>
+          Manage Banner Image
+        </NavLink>    
         <NavLink
           to="/admin/salesReport"
           className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"

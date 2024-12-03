@@ -1,29 +1,43 @@
-import React,{useState} from 'react';
+import React, { useState } from "react";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { loginTM } from '../../../Features/TheaterAdminActions';
+import { loginTM } from "../../../Features/TheaterAdminActions";
 
 function TMLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error,setError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log("email:", email);
-    console.log("Password:", password);
-    const baseUrl = process.env.REACT_APP_BASE_URL;
-    const response = await axios.post(`${baseUrl}/tmAdmin/login`, {
-      email,
-      password,
-    });
-    const { token, admin } = response.data;
 
-    dispatch(loginTM(admin, token));
-    navigate("/theaterAdmin/home");
+    try {
+      const baseUrl = process.env.REACT_APP_BASE_URL;
+
+      const response = await axios.post(`${baseUrl}/tmAdmin/login`, {
+        email,
+        password,
+      });
+      if (response.status === 200) {
+        const { token, theaterAdmin } = response.data;
+
+        dispatch(loginTM(theaterAdmin, token));
+
+        navigate("/theaterAdmin/home");
+      }else if(response.status === 400){
+        setError(response.data.message)
+      }
+    } catch (error) {
+      if (error.response) {
+        
+        console.error("Login error:", error.response.data.error);
+      } else {
+        console.error("Unexpected error:", error);
+      }
+    }
   };
 
   return (
@@ -74,9 +88,12 @@ function TMLogin() {
             </button>
           </div>
         </form>
+        <div className="text-red-500">
+          {error}
+        </div>
       </div>
     </div>
   );
 }
 
-export default TMLogin
+export default TMLogin;

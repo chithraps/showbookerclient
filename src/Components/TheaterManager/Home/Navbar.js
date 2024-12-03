@@ -1,123 +1,69 @@
-import React from 'react';
+import React, { useState } from 'react'; 
 import { NavLink } from 'react-router-dom';
 import { logoutTM } from '../../../Features/TheaterAdminActions';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import ChangePasswordModal from './ChangePasswordModal'; // Import the modal
 
 function Navbar() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleLogout = () => {
     dispatch(logoutTM());
+    console.log('in handle logout')
     navigate('/theaterAdmin');
+  };
+
+  const openChangePasswordModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
     <div className="h-full flex flex-col bg-gray-800 text-white w-64 p-4 fixed top-0 left-0">
-      <div className="mb-2">
-        <h2 className="text-2xl font-bold">Dashboard</h2>
+      <div className="mb-8">
+        <NavLink
+          to="/theaterAdmin/home"
+          className="text-2xl font-bold"
+          activeClassName="text-yellow-400"
+        >
+          Dashboard
+        </NavLink>
       </div>
-      <nav className="flex flex-col"> 
-      
+      <nav className="flex flex-col space-y-4"> 
         <NavLink
-          to="/theaterAdmin/addScreen"
+          to="/theaterAdmin/viewScreens"
           className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
           activeClassName="bg-gray-900"
         >
-          Add Screen
-        </NavLink>
+          Manage Screens
+        </NavLink>        
+        
         <NavLink
-          to="/theaterAdmin/editTheater"
+          to="/theaterAdmin/showTimings"
           className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
           activeClassName="bg-gray-900"
         >
-          Edit Theater
+          Show Timings
         </NavLink>
         <NavLink
-          to="/theaterAdmin/editScreen"
+          to="/theaterAdmin/viewBookings"
           className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
           activeClassName="bg-gray-900"
         >
-          Edit Screen
+          View Bookings
         </NavLink>
-        <NavLink
-          to="/theaterAdmin/addSeatingLayout"
-          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
-          activeClassName="bg-gray-900"
+        <button
+          onClick={openChangePasswordModal}
+          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700 text-left"
         >
-          Add Seating Layout
-        </NavLink>
-        <NavLink
-          to="/theaterAdmin/editSeatingLayout"
-          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
-          activeClassName="bg-gray-900"
-        >
-          Edit Seating Layout
-        </NavLink>
-        <NavLink
-          to="/theaterAdmin/addRows"
-          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
-          activeClassName="bg-gray-900"
-        >
-          Add Rows
-        </NavLink>
-        <NavLink
-          to="/theaterAdmin/editRows"
-          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
-          activeClassName="bg-gray-900"
-        >
-          Edit Rows
-        </NavLink>
-        <NavLink
-          to="/theaterAdmin/addSections"
-          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
-          activeClassName="bg-gray-900"
-        >
-          Add Sections
-        </NavLink>
-        <NavLink
-          to="/theaterAdmin/editSections"
-          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
-          activeClassName="bg-gray-900"
-        >
-          Edit Sections
-        </NavLink>
-        <NavLink
-          to="/theaterAdmin/addSeats"
-          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
-          activeClassName="bg-gray-900"
-        >
-          Add Seats
-        </NavLink>
-        <NavLink
-          to="/theaterAdmin/editSeats"
-          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
-          activeClassName="bg-gray-900"
-        >
-          Edit Seats
-        </NavLink>
-        <NavLink
-          to="/theaterAdmin/addGenre"
-          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
-          activeClassName="bg-gray-900"
-        >
-          Add Genre
-        </NavLink>
-        <NavLink
-          to="/theaterAdmin/viewMovies"
-          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
-          activeClassName="bg-gray-900"
-        >
-          View Movies
-        </NavLink>
-        <NavLink
-          to="/theaterAdmin/addMovie"
-          className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
-          activeClassName="bg-gray-900"
-        >
-          Add Movie
-        </NavLink>
+          Change Password
+        </button>
         <button
           onClick={handleLogout}
           className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700 text-left"
@@ -125,6 +71,8 @@ function Navbar() {
           Logout
         </button>
       </nav>
+
+      {isModalOpen && <ChangePasswordModal closeModal={closeModal} />}
     </div>
   );
 }

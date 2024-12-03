@@ -7,20 +7,30 @@ import { loginAdmin } from "../../../Features/AdminActions";
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const dispatch = useDispatch();
   const navigate = useNavigate();
- 
-  const handleLogin = async (e) => {
-    e.preventDefault();   
-    const baseUrl = process.env.REACT_APP_BASE_URL;    
-    const response = await axios.post(`${baseUrl}/admin/login`, {
-      email,
-      password,
-    });
-    const { token, admin } = response.data;
 
-    dispatch(loginAdmin(admin, token));
-    navigate("/admin/home");
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const baseUrl = process.env.REACT_APP_BASE_URL;
+      const response = await axios.post(`${baseUrl}/admin/login`, {
+        email,
+        password,
+      });
+      if (response.status === 200) {
+        const { token, admin } = response.data;
+
+        dispatch(loginAdmin(admin, token));
+        navigate("/admin/home");
+      }else if(response.status === 400){
+        setError(response.data.message)
+      }
+    } catch (error) {
+      console.log(error.response.data.message)
+      setError(error.response.data.message)
+    }
   };
 
   return (
@@ -71,6 +81,10 @@ function Login() {
             </button>
           </div>
         </form>
+        <div className="text-red-500">
+        {error}
+        </div>
+        
       </div>
     </div>
   );

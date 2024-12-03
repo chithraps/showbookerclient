@@ -1,9 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 
+
 const initialState = {
-    theaterAdmin : JSON.parse(localStorage.getItem('theaterAdmin')) || null,
-    theaterAdminAccessToken : localStorage.getItem('theaterAdminAccessToken') || null
-}
+  theaterAdmin: JSON.parse(localStorage.getItem('theaterAdmin')) || null,
+  theaterAdminAccessToken: localStorage.getItem('theaterAdminAccessToken') || null
+};
+
+console.log("Initial state:", initialState);
 const theaterAdminSlice = createSlice({
     name : 'theaterAdmin',
     initialState,
