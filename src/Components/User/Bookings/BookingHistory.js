@@ -186,7 +186,7 @@ function BookingHistory() {
                 {/* Poster */}
                 <div className="flex-shrink-0 mb-4 lg:mb-0 lg:mr-4">
                   <img
-                    src={`${process.env.REACT_APP_BASE_URL}${booking.movieId.poster}`}
+                    src={booking.moviePosterUrl}
                     alt={booking.movieId.title}
                     className="w-full h-64 object-cover rounded-lg"
                   />
