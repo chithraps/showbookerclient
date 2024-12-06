@@ -14,8 +14,7 @@ function LocationModal({ isOpen, onClose, setSelectedLocation }) {
   const autocompleteService = useRef(null);
 
   useEffect(() => {
-    const apiKey = process.env.REACT_APP_GOOGLE_PLACES_API_KEY;
-    console.log("apikey ",apiKey)
+    const apiKey = process.env.REACT_APP_GOOGLE_PLACES_API_KEY;    
     loadScript(`https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`).then(() => {
       if (window.google && window.google.maps) {
         autocompleteService.current = new window.google.maps.places.AutocompleteService();
