@@ -31,14 +31,14 @@ function LandingPage() {
         const baseUrl = process.env.REACT_APP_BASE_URL;
         const response = await axios.get(`${baseUrl}/getBannerImages`);
         setBanners(response.data || []);
-      } catch (error) {
+      } catch (error) { 
         console.error("Error fetching banners:", error);
       }
     };
 
     fetchMovies();
     fetchBanners();
-  }, []);
+  }, [location]);
   const bannerSettings = {
     dots: true,
     infinite: true,

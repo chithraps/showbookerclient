@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo,useRef } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -14,7 +14,7 @@ function ScreenLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { movieId, theaterId, screenId, showTiming, selectedDate } =
-    location.state;
+    location.state;  
   const user = useSelector((state) => state.user);
   const [userId, setUserId] = useState(null);
   const [screenDetails, setScreenDetails] = useState(null);
@@ -25,6 +25,60 @@ function ScreenLayout() {
   const [heldSeatIds, setHeldSeatIds] = useState(new Set());
   const [seatPriceMap, setSeatPriceMap] = useState(new Map());
   const maxSeatsAllowed = 10;
+  const [isIdle, setIsIdle] = useState(false);
+  const idleTimerRef = useRef(null);
+
+  const resetIdleTimer = () => {
+    setIsIdle(false);
+    if (idleTimerRef.current) {
+      clearTimeout(idleTimerRef.current);
+    }
+    idleTimerRef.current = setTimeout(() => {
+      setIsIdle(true);
+    }, 60000); // 1 minute of inactivity
+  };
+
+  useEffect(() => {
+    const handleUserActivity = () => resetIdleTimer();
+
+    // Add event listeners for user activity
+    window.addEventListener("mousemove", handleUserActivity);
+    window.addEventListener("keydown", handleUserActivity);
+    window.addEventListener("scroll", handleUserActivity);
+
+    // Initialize idle timer
+    resetIdleTimer();
+
+    return () => {
+      // Cleanup event listeners and timers
+      window.removeEventListener("mousemove", handleUserActivity);
+      window.removeEventListener("keydown", handleUserActivity);
+      window.removeEventListener("scroll", handleUserActivity);
+      if (idleTimerRef.current) {
+        clearTimeout(idleTimerRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isIdle) {
+      swal({
+        title: "Idle State Detected",
+        text: "You have been idle for more than 1 minute. Please reload the page.",
+        icon: "warning",
+        buttons: {
+          confirm: {
+            text: "Go Back",
+            value: true,
+          },
+        },
+      }).then((value) => {
+        if (value) {
+          navigate(-1); 
+        }
+      });
+    }
+  }, [isIdle, navigate]);
 
   useEffect(() => {
     if (user && user.user && user.user.id) {

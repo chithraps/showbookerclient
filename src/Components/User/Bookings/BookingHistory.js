@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Header from "../LandingPage/Header";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import axios from "axios";
 import swal from "sweetalert";
+import { useNavigate } from "react-router-dom";
 import RateReviewModal from "../RateAndReviewMovie/RateAndReviewModal";
+import {logoutUser} from "../../../Features/UserActions";
 
 function BookingHistory() {
   const [bookingHistory, setBookingHistory] = useState([]);
@@ -15,6 +17,8 @@ function BookingHistory() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate(); 
   const userEmail = user.user.email;
   const userId = user.user.id;
   const token = user.accessToken;
@@ -36,6 +40,20 @@ function BookingHistory() {
       } catch (error) {
         setError("Error fetching booking history");
         console.error("Error fetching booking history:", error);
+        if(error.response.data.message==="Unauthorized: Token has expired"){
+          swal({
+            title: "Session Expired",
+            text: "Your session has expired. Please log in again.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          }).then((willLogout) => {
+            if (willLogout) {
+              dispatch(logoutUser()); 
+              navigate("/");
+            }
+          });
+        }
       } finally {
         setLoading(false);
       }
@@ -186,7 +204,7 @@ function BookingHistory() {
                 {/* Poster */}
                 <div className="flex-shrink-0 mb-4 lg:mb-0 lg:mr-4">
                   <img
-                    src={booking.moviePosterUrl}
+                    src={booking.movieId.poster}
                     alt={booking.movieId.title}
                     className="w-full h-64 object-cover rounded-lg"
                   />

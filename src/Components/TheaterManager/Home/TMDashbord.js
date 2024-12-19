@@ -1,14 +1,20 @@
 import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import { MdCurrencyRupee } from "react-icons/md";
 import LineChart from "./LineChart";
+import { logoutTM } from '../../../Features/TheaterAdminActions';
+import { useNavigate } from "react-router-dom";
+import swal from "sweetalert";
+
 
 function TMDashbord() {
   const theaterAdmin = useSelector((state) => state.theaterAdmin);
   const theater_id = theaterAdmin?.theaterAdmin?.theaterId;
   const token = theaterAdmin?.theaterAdminAccessToken;
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [dashboardData, setDashboardData] = useState({
     totalBookings: 0,
@@ -29,6 +35,20 @@ function TMDashbord() {
         setDashboardData(response.data);
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
+        if (error.response?.data?.message === "Unauthorized: Token has expired") {
+          swal({
+            title: "Session Expired",
+            text: "Your session has expired. Please log in again.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          }).then((willLogout) => {
+            if (willLogout) {
+              dispatch(logoutTM());
+              navigate("/theaterAdmin");
+            }
+          });
+        }
       }
     };
 
@@ -79,7 +99,7 @@ function TMDashbord() {
             Booking Trends
           </h2>
           <div className="h-64 z-0">
-            <LineChart />
+           <LineChart />
           </div>
         </div>
       </div>

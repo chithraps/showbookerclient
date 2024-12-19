@@ -1,32 +1,53 @@
-import React, { useEffect, useState } from 'react';  
-import axios from 'axios';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import swal from "sweetalert";
+import { useNavigate } from "react-router-dom";
+import { logoutTM } from "../../../Features/TheaterAdminActions";
 
 function BookingsTable() {
   const [bookings, setBookings] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1); 
-  const [totalPages, setTotalPages] = useState(1); 
-  const theaterAdmin = useSelector((state) => state.theaterAdmin); 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const theaterAdmin = useSelector((state) => state.theaterAdmin);
   const theaterId = theaterAdmin.theaterAdmin.theaterId;
   const token = theaterAdmin.theaterAdminAccessToken;
-
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const fetchBookings = async (page = 1) => {
     try {
       const baseUrl = process.env.REACT_APP_BASE_URL;
-      const response = await axios.get(`${baseUrl}/tmAdmin/viewBookings/${theaterId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
-          page, 
-          limit: 10, 
-        },
-      });
+      const response = await axios.get(
+        `${baseUrl}/tmAdmin/viewBookings/${theaterId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: {
+            page,
+            limit: 10,
+          },
+        }
+      );
       setBookings(response.data.bookings);
-      setTotalPages(response.data.totalPages); 
-      setCurrentPage(response.data.currentPage); 
+      setTotalPages(response.data.totalPages);
+      setCurrentPage(response.data.currentPage);
     } catch (error) {
-      console.error('Error fetching bookings:', error);
+      console.error("Error fetching bookings:", error);
+      if (error.response?.data?.message === "Unauthorized: Token has expired") {
+        swal({
+          title: "Session Expired",
+          text: "Your session has expired. Please log in again.",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        }).then((willLogout) => {
+          if (willLogout) {
+            dispatch(logoutTM());
+            navigate("/theaterAdmin");
+          }
+        });
+      }
     }
   };
 
@@ -46,7 +67,9 @@ function BookingsTable() {
       {/* Heading */}
       <h1 className="text-2xl font-bold mb-4">Bookings</h1>
       {bookings.length === 0 ? (
-        <div className="text-center text-gray-500">No bookings available for this theater.</div>
+        <div className="text-center text-gray-500">
+          No bookings available for this theater.
+        </div>
       ) : (
         <>
           <div className="overflow-x-auto h-96">
@@ -55,7 +78,7 @@ function BookingsTable() {
                 <tr>
                   <th className="py-2 px-4">User Email</th>
                   <th className="py-2 px-4">Movie</th>
-                  <th className="py-2 px-4">Screen</th>              
+                  <th className="py-2 px-4">Screen</th>
                   <th className="py-2 px-4">Show Date</th>
                   <th className="py-2 px-4">Show Time</th>
                   <th className="py-2 px-4">Total Price</th>
@@ -69,14 +92,18 @@ function BookingsTable() {
                   <tr key={booking._id} className="border-t">
                     <td className="py-2 px-4">{booking.userEmail}</td>
                     <td className="py-2 px-4">{booking.movieId.title}</td>
-                    <td className="py-2 px-4">{booking.screenId.screen_number}</td>               
-                    <td className="py-2 px-4">{new Date(booking.showDate).toLocaleDateString()}</td>
+                    <td className="py-2 px-4">
+                      {booking.screenId.screen_number}
+                    </td>
+                    <td className="py-2 px-4">
+                      {new Date(booking.showDate).toLocaleDateString()}
+                    </td>
                     <td className="py-2 px-4">{booking.showTime}</td>
                     <td className="py-2 px-4">{booking.totalPrice}</td>
                     <td className="py-2 px-4">{booking.payment.status}</td>
                     <td className="py-2 px-4">{booking.status}</td>
                     <td className="py-2 px-4">
-                      {new Date(booking.createdAt).toLocaleDateString()} 
+                      {new Date(booking.createdAt).toLocaleDateString()}
                     </td>
                   </tr>
                 ))}
@@ -88,7 +115,11 @@ function BookingsTable() {
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className={`px-4 py-2 ${currentPage === 1 ? 'bg-blue-500 text-white' : 'bg-blue-500 text-white'}`}
+              className={`px-4 py-2 ${
+                currentPage === 1
+                  ? "bg-blue-500 text-white"
+                  : "bg-blue-500 text-white"
+              }`}
             >
               Previous
             </button>
@@ -98,7 +129,11 @@ function BookingsTable() {
             <button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className={`px-4 py-2 ${currentPage === totalPages ? 'bg-blue-500 text-white' : 'bg-blue-500 text-white'}`}
+              className={`px-4 py-2 ${
+                currentPage === totalPages
+                  ? "bg-blue-500 text-white"
+                  : "bg-blue-500 text-white"
+              }`}
             >
               Next
             </button>

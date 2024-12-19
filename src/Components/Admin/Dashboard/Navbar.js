@@ -30,7 +30,7 @@ function Navbar() {
           className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
           activeClassName="bg-gray-900"
         >
-          View Users
+          Users
         </NavLink>
        
         <NavLink
@@ -38,7 +38,7 @@ function Navbar() {
           className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
           activeClassName="bg-gray-900"
         >
-          View Theaters
+         Theaters
         </NavLink>
         
         <NavLink
@@ -55,19 +55,20 @@ function Navbar() {
         >
           Movies
         </NavLink>
-        <NavLink
+       {/*  <NavLink
           to="/admin/addTheaterManager"
           className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
           activeClassName="bg-gray-900"
         >
-          Create Theater Manager
-        </NavLink>
+          Theater Manager
+        </NavLink> 
+        */ }
         <NavLink
           to="/admin/viewBookings"
           className="block py-2 px-4 rounded transition duration-200 hover:bg-gray-700"
           activeClassName="bg-gray-900"
         >
-          View Bookings
+          Bookings
         </NavLink>   
         <NavLink
           to="/admin/manageBannerImage"

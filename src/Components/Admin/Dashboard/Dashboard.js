@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import BookingsChart from "./BookingsChart";
 import axios from 'axios';
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 import { MdCurrencyRupee } from "react-icons/md";
 import RevenueChart from "./RevenueChart";
+import { useNavigate } from "react-router-dom";
+import { logoutSuperAdmin } from "../../../Features/AdminActions";
+import swal from "sweetalert";
 
 function Dashboard() {
   const [statistics, setStatistics] = useState({
@@ -15,6 +18,8 @@ function Dashboard() {
   });
   const admin = useSelector((state) => state.admin);
   const adminAccessToken = admin?.adminAccessToken;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
@@ -28,6 +33,20 @@ function Dashboard() {
         console.log("response ",response.data)
       } catch (error) {
         console.error('Error fetching statistics:', error);
+        if (error.response?.data?.message === "Unauthorized: Token has expired") {
+          swal({
+            title: "Session Expired",
+            text: "Your session has expired. Please log in again.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          }).then((willLogout) => {
+            if (willLogout) {
+              dispatch(logoutSuperAdmin());
+              navigate("/admin");
+            }
+          });
+        }
       }
     };
     fetchStatistics();

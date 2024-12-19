@@ -9,8 +9,8 @@ function ChangePasswordModal({ closeModal }) {
   const [error, setError] = useState("");
   const theaterAdmin = useSelector((state) => state.theaterAdmin);
   const token = theaterAdmin.theaterAdminAccessToken;
-  const theaterId = theaterAdmin.theaterAdmin.theaterId;
-  console.log(theaterAdmin.theaterAdmin.theaterId);
+  const id = theaterAdmin.theaterAdmin.id;
+
   const handlePasswordChange = async () => {
     setError("");
 
@@ -32,7 +32,7 @@ function ChangePasswordModal({ closeModal }) {
     try {
       const baseUrl = process.env.REACT_APP_BASE_URL;
       const response = await axios.patch(
-        `${baseUrl}/tmAdmin/updatePassword/${theaterId}`,
+        `${baseUrl}/tmAdmin/updatePassword/${id}`,
         {
           password,
         },
@@ -53,40 +53,55 @@ function ChangePasswordModal({ closeModal }) {
   };
 
   return (
-    <div className="fixed z-50 flex items-center justify-center bg-black bg-opacity-70">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h3 className="text-2xl font-semibold mb-6 text-center text-gray-800">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70">
+      <div className="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+        <h3 className="text-2xl font-bold text-gray-800 text-center mb-4">
           Change Password
         </h3>
-        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
-        <input
-          type="password"
-          placeholder="New Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className={`w-full p-3 mb-4 border ${
-            error.includes("field") ? "border-red-500" : "border-gray-300"
-          } text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-        />
-        <input
-          type="password"
-          placeholder="Confirm Password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          className={`w-full p-3 mb-6 border ${
-            error.includes("field") ? "border-red-500" : "border-gray-300"
-          } text-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
-        />
-        <div className="flex justify-end">
+        {error && (
+          <p className="text-red-500 text-sm text-center mb-4">{error}</p>
+        )}
+        <form className="space-y-4">
+          <div className="flex flex-col">
+            <label className="text-gray-700 font-medium" htmlFor="new-password">
+              New Password
+            </label>
+            <input
+              id="new-password"
+              type="password"
+              placeholder="Enter new password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+          <div className="flex flex-col">
+            <label
+              className="text-gray-700 font-medium"
+              htmlFor="confirm-password"
+            >
+              Confirm Password
+            </label>
+            <input
+              id="confirm-password"
+              type="password"
+              placeholder="Re-enter new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+        </form>
+        <div className="mt-6 flex justify-between">
           <button
             onClick={handlePasswordChange}
-            className="bg-blue-600 text-white py-2 px-4 rounded-md shadow hover:bg-blue-700 transition duration-200"
+            className="bg-blue-600 text-white font-medium py-2 px-4 rounded-md shadow hover:bg-blue-700 transition duration-200"
           >
             Submit
           </button>
           <button
             onClick={closeModal}
-            className="bg-gray-300 text-gray-800 py-2 px-4 rounded-md shadow hover:bg-gray-400 ml-2 transition duration-200"
+            className="bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md shadow hover:bg-gray-400 transition duration-200"
           >
             Cancel
           </button>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import {
-  Chart as ChartJS,
+  Chart as ChartJS, 
   LineElement,
   PointElement,
   LinearScale,
@@ -62,7 +62,7 @@ function LineChart() {
   return (
     <div className="p-3 bg-white rounded-lg shadow-lg w-full max-w-5xl mx-auto">
       
-      <div className="relative h-52 md:h-48">
+      <div className="h-52 md:h-48 z-0">
         <Line
           data={chartData}
           options={{

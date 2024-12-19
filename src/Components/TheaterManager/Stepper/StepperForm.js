@@ -11,10 +11,11 @@ const steps = [
   { component: AddSeats },
 ];
 
-function StepperForm({ onScreenAdded }) {
+function StepperForm({ onScreenAdded,handleClose}) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     screenId: "",
+    allSeatsStored: false,
     seatingLayouts: [
       {
         layoutId: "",
@@ -49,6 +50,7 @@ function StepperForm({ onScreenAdded }) {
 
   const handleScreenAdded = () => {
     setSubmitted(true);
+     
     goNext(); 
   };
 
@@ -66,7 +68,17 @@ function StepperForm({ onScreenAdded }) {
   };
 
   return (
-    <div className="p-4 bg-white shadow rounded">
+    <div className="relative p-4 bg-white shadow rounded">
+      <button
+        onClick={formData.allSeatsStored ? handleClose : null} 
+        className={`absolute top-2 right-2 text-gray-500 text-2xl ${
+          !formData.allSeatsStored ? "opacity-50 cursor-not-allowed" : "hover:text-red-500"
+        }`}
+        disabled={!formData.allSeatsStored} 
+        title={!formData.allSeatsStored ? "Complete all seats to close" : "Close"}
+      >
+        &times;
+      </button>
       <StepComponent
         formData={formData}
         setFormData={updateFormData}

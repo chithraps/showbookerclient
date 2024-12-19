@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import swal from "sweetalert";
+import {logoutUser} from "../../../Features/UserActions";
 
 const WalletModal = ({ isOpen, onClose, userId }) => {
   const [walletAmount, setWalletAmount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const user = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate(); 
   const token = user.accessToken;
   useEffect(() => {
     if (isOpen && userId) {
@@ -20,8 +25,22 @@ const WalletModal = ({ isOpen, onClose, userId }) => {
             },
           });
           setWalletAmount(response.data.balance);
-        } catch (err) {
-          setError(err.response.data.message);
+        } catch (error) {
+          setError(error.response.data.message);
+          if(error.response.data.message==="Unauthorized: Token has expired"){
+            swal({
+              title: "Session Expired",
+              text: "Your session has expired. Please log in again.",
+              icon: "warning",
+              buttons: true,
+              dangerMode: true,
+            }).then((willLogout) => {
+              if (willLogout) {
+                dispatch(logoutUser()); 
+                navigate("/");
+              }
+            });
+          }
         } finally {
           setLoading(false);
         }

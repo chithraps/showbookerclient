@@ -54,7 +54,7 @@ function Header() {
   };
 
   const handleEditProfile = () => {
-    navigate("/edit-profile");
+    navigate("/profile");
   };
 
   const handleBookingHistory = () => {

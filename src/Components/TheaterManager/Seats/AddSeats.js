@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import swal from "sweetalert";
-import {useSelector} from "react-redux";
+import { useSelector } from "react-redux";
 
 function AddSeats({ formData, setFormData, onScreenAdded }) {
   const [rowName, setRowName] = useState("");
@@ -10,12 +10,12 @@ function AddSeats({ formData, setFormData, onScreenAdded }) {
   const [seatNumberError, setSeatNumberError] = useState("");
   const [spacing, setSpacing] = useState(0);
   const [spacingError, setSpacingError] = useState("");
-  const [gapAfter, setGapAfter] = useState(0); 
-  const [spacingPosition, setSpacingPosition] = useState("after"); // New state
+  const [gapAfter, setGapAfter] = useState(0);
+  const [spacingPosition, setSpacingPosition] = useState("after");
 
   const rowId = formData.seatingLayouts[0].rows[0].rowId;
-  const theaterAdmin = useSelector((state)=>state.theaterAdmin);
-  const token = theaterAdmin.theaterAdminAccessToken
+  const theaterAdmin = useSelector((state) => state.theaterAdmin);
+  const token = theaterAdmin.theaterAdminAccessToken;
   useEffect(() => {
     const fetchRow = async () => {
       try {
@@ -37,50 +37,63 @@ function AddSeats({ formData, setFormData, onScreenAdded }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     // Convert input values to numbers for comparison
     const start = Number(startSeatNumber);
     const end = Number(endSeatNumber);
-  
+
     if (!start || !end || start > end) {
       console.log("startSeatNumber endSeatNumber ", start, " ", end);
-      console.log((start > end) ? true : false);
+      console.log(start > end ? true : false);
       setSeatNumberError("Please enter a valid seat number range.");
       return;
     } else {
       setSeatNumberError("");
     }
-  
+
     if (spacing < 0) {
       setSpacingError("Spacing cannot be a negative number.");
       return;
     } else {
       setSpacingError("");
     }
-  
+
     try {
+      const screenId = formData.screenId;
       const baseUrl = process.env.REACT_APP_BASE_URL;
-      const response = await axios.post(`${baseUrl}/tmAdmin/addSeats`, {
-        rowId,
-        startSeatNumber: start, 
-        endSeatNumber: end,    
-        sSpacing: spacing, 
-        gapAfter, 
-        spacingPosition,
-        
-      },{
-        headers: {
-          Authorization: `Bearer ${token}`,
+      const response = await axios.post(
+        `${baseUrl}/tmAdmin/addSeats`,
+        {
+          screenId,
+          rowId,
+          startSeatNumber: start,
+          endSeatNumber: end,
+          sSpacing: spacing,
+          gapAfter,
+          spacingPosition,
         },
-      });
-  
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       if (response.status === 201) {
+        const { allSeatsStored, message } = response.data;
+        console.log(" All seats occured  ",allSeatsStored)
+        const updatedFormData = { ...formData };
+        if (allSeatsStored) {
+          updatedFormData.allSeatsStored = true;
+          swal("Success", "All seats are filled successfully", "success");
+        }
+        setFormData(updatedFormData);
         swal("Success", response.data.message, "success");
         setStartSeatNumber(0);
         setEndSeatNumber(0);
         setSpacing(0);
-        setGapAfter(0); 
-        setSpacingPosition("after"); 
+        setGapAfter(0);
+        setSpacingPosition("after");
       } else {
         swal("Error", response.data.message, "error");
       }
@@ -129,7 +142,9 @@ function AddSeats({ formData, setFormData, onScreenAdded }) {
               />
             </div>
             {seatNumberError && (
-              <p className="text-red-500 text-xs italic mt-1">{seatNumberError}</p>
+              <p className="text-red-500 text-xs italic mt-1">
+                {seatNumberError}
+              </p>
             )}
           </div>
 

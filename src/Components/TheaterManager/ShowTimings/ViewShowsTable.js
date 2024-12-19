@@ -2,7 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import AddShowTimingModal from "./AddShowTimingModal";
 import EditShowTimingsModal from "./EditShowTimingsModal";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutTM } from '../../../Features/TheaterAdminActions';
+import { useNavigate } from "react-router-dom";
+import swal from "sweetalert";
 function ViewShowsTable() {
   const [showTimings, setShowTimings] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -12,7 +15,8 @@ function ViewShowsTable() {
   const [selectedTiming, setSelectedTiming] = useState(null);
   const theaterAdmin = useSelector((state) => state.theaterAdmin);
   const token = theaterAdmin.theaterAdminAccessToken;
-  console.log("theaterId ", theaterAdmin.theaterAdmin.theaterId);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     fetchShowTimings();
@@ -36,6 +40,20 @@ function ViewShowsTable() {
     } catch (error) {
       console.error("Error fetching show timings:", error);
       setShowTimings([]);
+      if (error.response?.data?.message === "Unauthorized: Token has expired") {
+        swal({
+          title: "Session Expired",
+          text: "Your session has expired. Please log in again.",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        }).then((willLogout) => {
+          if (willLogout) {
+            dispatch(logoutTM());
+            navigate("/theaterAdmin");
+          }
+        });
+      }
     }
   };
 

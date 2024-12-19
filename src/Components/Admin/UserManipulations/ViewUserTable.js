@@ -1,38 +1,54 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logoutSuperAdmin } from "../../../Features/AdminActions";
+import swal from "sweetalert";
 
 function ViewUserTable() {
   const [users, setUsers] = useState([]);
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10); 
+  const [limit, setLimit] = useState(10);
   const [totalUsers, setTotalUsers] = useState(0);
   const admin = useSelector((state) => state.admin);
-  console.log("admin and token ",admin.admin," ",admin.adminAccessToken);
+  console.log("admin and token ", admin.admin, " ", admin.adminAccessToken);
   const adminAccessToken = admin.adminAccessToken;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const baseUrl = process.env.REACT_APP_BASE_URL;
-        const response = await axios.get(
-          `${baseUrl}/admin/fetchUsers`, 
-          {
-            params: { page, limit },
-            headers: {
-              Authorization: `Bearer ${adminAccessToken}` 
-            }
-          }
-        );
+        const response = await axios.get(`${baseUrl}/admin/fetchUsers`, {
+          params: { page, limit },
+          headers: {
+            Authorization: `Bearer ${adminAccessToken}`,
+          },
+        });
         const { usersData, totalUsers } = response.data;
         setUsers(usersData);
         setTotalUsers(totalUsers);
         console.log(usersData);
       } catch (error) {
         console.error("Error fetching users:", error);
+        if (error.response?.data?.message === "Unauthorized: Token has expired") {
+          swal({
+            title: "Session Expired",
+            text: "Your session has expired. Please log in again.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          }).then((willLogout) => {
+            if (willLogout) {
+              dispatch(logoutSuperAdmin());
+              navigate("/admin");
+            }
+          });
+        }
       }
     };
     fetchUsers();
-  }, [page, limit]); 
+  }, [page, limit]);
 
   const handleBlockUser = async (userId, currentStatus) => {
     try {
@@ -42,10 +58,9 @@ function ViewUserTable() {
         { blockUser: !currentStatus },
         {
           headers: {
-            Authorization: `Bearer ${adminAccessToken}` 
-          }
+            Authorization: `Bearer ${adminAccessToken}`,
+          },
         }
-  
       );
       if (response.data.success) {
         setUsers(
@@ -86,12 +101,8 @@ function ViewUserTable() {
                 <td className="py-2 px-4 border-b">
                   {user.firstName || "Nil"}
                 </td>
-                <td className="py-2 px-4 border-b">
-                  {user.lastName || "Nil"}
-                </td>
-                <td className="py-2 px-4 border-b">
-                  {user.email || "Nil"}
-                </td>
+                <td className="py-2 px-4 border-b">{user.lastName || "Nil"}</td>
+                <td className="py-2 px-4 border-b">{user.email || "Nil"}</td>
                 <td className="py-2 px-4 border-b">
                   {user.mobileNumber || "Nil"}
                 </td>

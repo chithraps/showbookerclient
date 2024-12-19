@@ -37,6 +37,7 @@ import AboutUs from "./Components/User/Footer/AboutUs";
 import Privacy from "./Components/User/Footer/Privacy";
 import Services from "./Components/User/Footer/Services";
 import Terms from "./Components/User/Footer/Terms";
+import ViewProfile from "./Components/User/UserProfile/ViewProfile";
 function App() {
   const user = useSelector((state) => state.user);
   const admin = useSelector((state) => state.admin);
@@ -71,6 +72,8 @@ function App() {
 
         {/* route for ScreenLayout */}
         <Route path="/screenLayout" element={<ScreenLayout />} />
+        {/* route for user profile */}
+        <Route path="/profile" element={ user && user.user ? <ViewProfile /> : <Navigate to="/" /> } />
 
         {/* route for EditLayout */}
         <Route path="/edit-profile" element={ user && user.user ? <EditProfile /> : <Navigate to="/" /> } />

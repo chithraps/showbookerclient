@@ -31,12 +31,7 @@ function TMLogin() {
         setError(response.data.message)
       }
     } catch (error) {
-      if (error.response) {
-        
-        console.error("Login error:", error.response.data.error);
-      } else {
-        console.error("Unexpected error:", error);
-      }
+     setError(error.response.data.message)
     }
   };
 
@@ -88,9 +83,11 @@ function TMLogin() {
             </button>
           </div>
         </form>
-        <div className="text-red-500">
-          {error}
-        </div>
+        {error && (
+          <div className="mt-4 text-red-500 text-sm text-center">
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );

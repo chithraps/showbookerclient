@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import Header from "../LandingPage/Header";
 import { useParams, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { toZonedTime, format } from "date-fns-tz";
 import { selectLocation } from "../../../Features/LocationSlice";
 import axios from "axios";
 import Footer from "../Footer/Footer";
+
+const IST_TIMEZONE = "Asia/Kolkata";
 
 function TheatersListForMovies() {
   const { id } = useParams();
@@ -54,24 +57,23 @@ function TheatersListForMovies() {
     const newDates = [];
 
     for (let i = 0; i < 4; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
+      const utcDate = new Date(today);
+      utcDate.setDate(today.getDate() + i);
 
-      const isoDate = date.toISOString().split("T")[0];
+      // Convert UTC to IST
+      const zonedDate = toZonedTime(utcDate, IST_TIMEZONE);
+
+      const isoDate = format(zonedDate, "yyyy-MM-dd", { timeZone: IST_TIMEZONE });
+      const displayDate = format(zonedDate, "EEE, dd MMM", { timeZone: IST_TIMEZONE }).split(", ");
+
       newDates.push({
-        displayDate: date
-          .toLocaleDateString("en-GB", {
-            weekday: "short", // 'Tue'
-            day: "2-digit", // '20'
-            month: "short", // 'Aug'
-          })
-          .split(" "),
+        displayDate, 
         isoDate,
       });
     }
 
     setDates(newDates);
-    setSelectedDate(newDates[0].isoDate);
+    setSelectedDate(newDates[0].isoDate); 
   };
 
   useEffect(() => {

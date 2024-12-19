@@ -129,6 +129,36 @@ function Payment() {
       setIsEmailValid(emailPattern.test(email));
     }
   }, [email]);
+  useEffect(() => {
+    let idleTimeout;
+
+    const resetIdleTimer = () => {
+      clearTimeout(idleTimeout);
+      idleTimeout = setTimeout(() => {
+        swal({
+          title: "Session Expired",
+          text: "Your session has expired. Click OK to go back to the home page.",
+          icon: "warning",
+          button: "OK",
+        }).then(() => {
+          navigate("/"); 
+        });
+      }, 120000); 
+    };
+
+    // Attach event listeners to detect user activity
+    const events = ["mousemove", "keydown", "click"];
+    events.forEach((event) =>
+      window.addEventListener(event, resetIdleTimer)
+    );
+    resetIdleTimer(); 
+    return () => {
+      events.forEach((event) =>
+        window.removeEventListener(event, resetIdleTimer)
+      );
+      clearTimeout(idleTimeout); 
+    };
+  }, [navigate]);
 
   const handleConvenienceFeeClick = () => {
     setShowPriceDetails((prev) => !prev);

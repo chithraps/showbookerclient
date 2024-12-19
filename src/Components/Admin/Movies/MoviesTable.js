@@ -3,7 +3,9 @@ import axios from "axios";
 import NewMovieModal from "./NewMovieModal";
 import EditMovieModal from "./EditMovieModal";
 import Swal from "sweetalert";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch} from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logoutSuperAdmin } from "../../../Features/AdminActions";
 
 function MoviesTable() {
   const [movies, setMovies] = useState([]);
@@ -18,7 +20,8 @@ function MoviesTable() {
   const [limit, setLimit] = useState(10);
   const admin = useSelector((state) => state.admin);
   const adminAccessToken = admin.adminAccessToken;
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const fetchMovies = async () => {
     try {
       const baseUrl = process.env.REACT_APP_BASE_URL;
@@ -34,6 +37,20 @@ function MoviesTable() {
     } catch (error) {
       setError("Error fetching movies");
       console.error("Error fetching movies:", error);
+      if (error.response?.data?.message === "Unauthorized: Token has expired") {
+        Swal({
+          title: "Session Expired",
+          text: "Your session has expired. Please log in again.",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        }).then((willLogout) => {
+          if (willLogout) {
+            dispatch(logoutSuperAdmin());
+            navigate("/admin");
+          }
+        });
+      }
     } finally {
       setLoading(false);
     }

@@ -26,7 +26,6 @@ function PrePayment() {
   const [seats, setSeats] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showPriceDetails, setShowPriceDetails] = useState(false);
-  
 
   // Pricing details
   const basePrice = 40;
@@ -68,7 +67,36 @@ function PrePayment() {
         return "th";
     }
   };
+  useEffect(() => {
+    let idleTimeout;
 
+    const resetIdleTimer = () => {
+      clearTimeout(idleTimeout);
+      idleTimeout = setTimeout(() => {
+        swal({
+          title: "Session Expired",
+          text: "Your session has expired. Click OK to go back to the home page.",
+          icon: "warning",
+          button: "OK",
+        }).then(() => {
+          navigate("/"); 
+        });
+      }, 180000); // 3 minutes timeout
+    };
+
+    // Attach event listeners to detect user activity
+    const events = ["mousemove", "keydown", "click"];
+    events.forEach((event) =>
+      window.addEventListener(event, resetIdleTimer)
+    );
+    resetIdleTimer(); 
+    return () => {
+      events.forEach((event) =>
+        window.removeEventListener(event, resetIdleTimer)
+      );
+      clearTimeout(idleTimeout); 
+    };
+  }, [navigate]);
   useEffect(() => {
     const fetchDetails = async () => {
       try {
@@ -96,8 +124,6 @@ function PrePayment() {
     };
 
     fetchDetails();
-
-    
   }, [
     theaterId,
     movieId,
@@ -108,8 +134,6 @@ function PrePayment() {
     showTime,
     navigate,
   ]);
-
- 
 
   const handleConvenienceFeeClick = () => {
     setShowPriceDetails((prev) => !prev); // Toggle visibility

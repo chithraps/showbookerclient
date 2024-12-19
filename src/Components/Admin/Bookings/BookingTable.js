@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector,useDispatch } from 'react-redux';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
+import { logoutSuperAdmin } from "../../../Features/AdminActions";
+import swal from "sweetalert";
 
 function BookingTable() {
   const [bookings, setBookings] = useState([]);
@@ -10,7 +13,8 @@ function BookingTable() {
   const [selectedLocation, setSelectedLocation] = useState(''); // For storing the selected location
   const admin = useSelector((state) => state.admin);
   const token = admin.adminAccessToken;
-
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   
   const fetchLocations = async () => {
     try {
@@ -45,6 +49,20 @@ function BookingTable() {
       setCurrentPage(response.data.currentPage);
     } catch (error) {
       console.error('Error fetching bookings:', error);
+      if (error.response?.data?.message === "Unauthorized: Token has expired") {
+        swal({
+          title: "Session Expired",
+          text: "Your session has expired. Please log in again.",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        }).then((willLogout) => {
+          if (willLogout) {
+            dispatch(logoutSuperAdmin());
+            navigate("/admin");
+          }
+        });
+      }
     }
   };
 
@@ -83,7 +101,7 @@ function BookingTable() {
             <option key={location} value={location}>
               {location}
             </option>
-          ))}
+          ))}  
         </select>
         <button
           onClick={handleFilter}

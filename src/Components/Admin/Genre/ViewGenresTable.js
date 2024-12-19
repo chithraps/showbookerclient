@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import NewGenreModal from "./NewGenreModal";
 import EditGenreModal from "./EditGenreModal";
+import { useNavigate } from "react-router-dom";
+import { logoutSuperAdmin } from "../../../Features/AdminActions";
 import Swal from "sweetalert";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
 
 function ViewGenresTable() {
   const [genres, setGenres] = useState([]);
@@ -17,6 +19,8 @@ function ViewGenresTable() {
   const admin = useSelector((state) => state.admin);
   console.log("admin and token ", admin.admin, " ", admin.adminAccessToken);
   const adminAccessToken = admin.adminAccessToken;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   useEffect(() => {
     console.log("in viewGne ");
     if (!adminAccessToken) {
@@ -44,6 +48,20 @@ function ViewGenresTable() {
     } catch (error) {
       setError("Error fetching genres");
       console.error("Error fetching genres:", error);
+      if (error.response?.data?.message === "Unauthorized: Token has expired") {
+        Swal({
+          title: "Session Expired",
+          text: "Your session has expired. Please log in again.",
+          icon: "warning",
+          buttons: true,
+          dangerMode: true,
+        }).then((willLogout) => {
+          if (willLogout) {
+            dispatch(logoutSuperAdmin());
+            navigate("/admin");
+          }
+        });
+      }
     } finally {
       setLoading(false);
     }
