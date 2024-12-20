@@ -63,8 +63,12 @@ function TheatersListForMovies() {
       // Convert UTC to IST
       const zonedDate = toZonedTime(utcDate, IST_TIMEZONE);
 
+      console.log("zoned date ",zonedDate)
+
       const isoDate = format(zonedDate, "yyyy-MM-dd", { timeZone: IST_TIMEZONE });
+      console.log("isoDate ",isoDate)
       const displayDate = format(zonedDate, "EEE, dd MMM", { timeZone: IST_TIMEZONE }).split(", ");
+       console.log("displayDate ",displayDate)
 
       newDates.push({
         displayDate, 
