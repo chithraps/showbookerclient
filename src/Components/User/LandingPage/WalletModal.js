@@ -40,6 +40,21 @@ const WalletModal = ({ isOpen, onClose, userId }) => {
                 navigate("/");
               }
             });
+          }else if (
+            error.response.data.message === "User is blocked. Access denied."
+          ) {
+            swal({
+              title: "User Blocked",
+              text: "Your account has been blocked. Please contact support for further assistance.",
+              icon: "error",
+              buttons: true,
+              dangerMode: true,
+            }).then((willLogout) => {
+              if (willLogout) {
+                dispatch(logoutUser());
+                navigate("/");
+              }
+            });
           }
         } finally {
           setLoading(false);

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Header from "../LandingPage/Header";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import axios from "axios";
 import swal from "sweetalert";
 import { useNavigate } from "react-router-dom";
 import RateReviewModal from "../RateAndReviewMovie/RateAndReviewModal";
-import {logoutUser} from "../../../Features/UserActions";
+import { logoutUser } from "../../../Features/UserActions";
 
 function BookingHistory() {
   const [bookingHistory, setBookingHistory] = useState([]);
@@ -18,7 +18,7 @@ function BookingHistory() {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const userEmail = user.user.email;
   const userId = user.user.id;
   const token = user.accessToken;
@@ -40,7 +40,7 @@ function BookingHistory() {
       } catch (error) {
         setError("Error fetching booking history");
         console.error("Error fetching booking history:", error);
-        if(error.response.data.message==="Unauthorized: Token has expired"){
+        if (error.response.data.message === "Unauthorized: Token has expired") {
           swal({
             title: "Session Expired",
             text: "Your session has expired. Please log in again.",
@@ -49,7 +49,22 @@ function BookingHistory() {
             dangerMode: true,
           }).then((willLogout) => {
             if (willLogout) {
-              dispatch(logoutUser()); 
+              dispatch(logoutUser());
+              navigate("/");
+            }
+          });
+        } else if (
+          error.response.data.message === "User is blocked. Access denied."
+        ) {
+          swal({
+            title: "User Blocked",
+            text: "Your account has been blocked. Please contact support for further assistance.",
+            icon: "error",
+            buttons: true,
+            dangerMode: true,
+          }).then((willLogout) => {
+            if (willLogout) {
+              dispatch(logoutUser());
               navigate("/");
             }
           });
@@ -134,18 +149,29 @@ function BookingHistory() {
       if (response.data.message === "Seat canceled successfully") {
         swal("success", "The seat has been canceled");
         setBookingHistory((prevHistory) =>
-          prevHistory.map((booking) =>
-            booking._id === bookingId
-              ? {
-                  ...booking,
-                  seatIds: booking.seatIds.map((seat) =>
-                    seat.seatId === seatId
-                      ? { ...seat, status: "Canceled" }
-                      : seat
-                  ),
-                }
-              : booking
-          )
+          prevHistory.map((booking) => {
+            console.log("Processing booking: ", booking);
+            if (booking._id === bookingId) {
+              console.log(
+                "Found matching booking, updating seat status for booking ID: ",
+                bookingId
+              );
+              return {
+                ...booking,
+                seatIds: booking.seatIds.map((seat) => {
+                  console.log("Processing seat: ", seat);
+                  if (seat.seatId._id === seatId) {
+                    console.log(
+                      `Found matching seat ID: ${seatId}, updating status to 'Canceled'`
+                    );
+                    return { ...seat, status: "Canceled" };
+                  }
+                  return seat;
+                }),
+              };
+            }
+            return booking;
+          })
         );
       }
     } catch (error) {
@@ -184,7 +210,7 @@ function BookingHistory() {
   if (loading) {
     return <div className="flex items-center justify-center h-screen"></div>;
   }
- 
+
   return (
     <div className="flex flex-col min-h-screen bg-white">
       <Header />
@@ -199,7 +225,7 @@ function BookingHistory() {
               <div
                 key={booking._id}
                 className="bg-gray-100 shadow-md rounded-lg p-4 flex flex-col lg:flex-row mx-auto"
-                style={{ maxWidth: "800px" }} 
+                style={{ maxWidth: "800px" }}
               >
                 {/* Poster */}
                 <div className="flex-shrink-0 mb-4 lg:mb-0 lg:mr-4">
@@ -280,7 +306,10 @@ function BookingHistory() {
 
                   {/* Action Buttons */}
                   {booking.status === "Confirmed" &&
-                    !isBookingExpired(booking.showDate, booking.showTime) && (
+                    !isBookingExpired(booking.showDate, booking.showTime) &&
+                    booking.seatIds.some(
+                      (seat) => seat.status !== "Canceled"
+                    ) && (
                       <button
                         onClick={() => openCancelModal(booking)}
                         className="mt-4 py-2 px-4 text-white rounded-lg bg-red-600 hover:bg-red-700"

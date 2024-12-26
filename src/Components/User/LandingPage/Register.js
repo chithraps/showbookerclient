@@ -9,6 +9,7 @@ import { IoMdClose } from "react-icons/io";
 import { FcGoogle } from "react-icons/fc";
 import { MdOutlineMail } from "react-icons/md";
 import SignInWithEmail from "./SignInWithEmail";
+import swal from "sweetalert";
 
 const customStyles = {
   content: {
@@ -58,6 +59,17 @@ function Register({ isOpen, onClose }) {
         navigate("/home");
       } catch (error) {
         console.log("Error in signIn : ", error);
+        if (
+          error.response &&
+          error.response.status === 403 &&
+          error.response.data.message === "User is blocked. Access denied."
+        ) {
+          swal({
+            title: "Access Denied",
+            text: "Your account is blocked. Please contact support.",
+            icon: "error",
+          });
+        }
       }
     },
   });

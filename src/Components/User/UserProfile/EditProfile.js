@@ -4,7 +4,7 @@ import { loginUser } from "../../../Features/UserActions";
 import axios from "axios";
 import swal from "sweetalert";
 
-function EditProfile({ onClose }) {
+function EditProfile({ onClose , onUpdate }) {
   const user = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const userId = user?.user?.id;
@@ -54,6 +54,7 @@ function EditProfile({ onClose }) {
   
   const handleChange = (e) => {
     const { name, value } = e.target;
+    console.log(name," ", value)
     setFormData({
       ...formData,
       [name]: value,
@@ -72,15 +73,16 @@ function EditProfile({ onClose }) {
         swal("Error", `The following fields are required: ${emptyFields.join(", ")}`, "error");
         return;
       }
-
+      console.log("FormData ",formData)
       const response = await axios.put(
         `${process.env.REACT_APP_BASE_URL}/edit-profile/${userId}`,
-        { ...formData },
+        { formData },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.status === 200) {
         dispatch(loginUser(response.data.user, token));
+        onUpdate(response.data.user);
         swal("Success", response.data.message, "success");
         onClose();
       }

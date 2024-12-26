@@ -45,6 +45,21 @@ function ViewProfile() {
               navigate("/");
             }
           });
+        }else if (
+          error.response.data.message === "User is blocked. Access denied."
+        ) {
+          swal({
+            title: "User Blocked",
+            text: "Your account has been blocked. Please contact support for further assistance.",
+            icon: "error",
+            buttons: true,
+            dangerMode: true,
+          }).then((willLogout) => {
+            if (willLogout) {
+              dispatch(logoutUser());
+              navigate("/");
+            }
+          });
         }
       }
     };
@@ -58,6 +73,10 @@ function ViewProfile() {
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+  };
+
+  const handleUserDetailsUpdate = (updatedDetails) => {
+    setUserDetails(updatedDetails);
   };
 
   return (
@@ -122,7 +141,7 @@ function ViewProfile() {
             >
               &times;
             </button>
-            <EditProfile onClose={handleCloseModal} userDetails={userDetails} />
+            <EditProfile onClose={handleCloseModal} userDetails={userDetails} onUpdate={handleUserDetailsUpdate} />
           </div>
         </div>
       )}

@@ -93,7 +93,7 @@ function LandingPage() {
             {banners.map((banner) => (
               <div key={banner._id}>
                 <img
-                  src={`${baseUrl}${banner.imageUrl}`}
+                  src={`${banner.bannerUrl}`}
                   alt="Banner"
                   className="w-full h-72 object-cover rounded-md"
                 />

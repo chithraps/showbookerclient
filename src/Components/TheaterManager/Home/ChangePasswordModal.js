@@ -71,8 +71,8 @@ function ChangePasswordModal({ closeModal }) {
               type="password"
               placeholder="Enter new password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              onChange={(e) => {setPassword(e.target.value)} }
+              className="border p-2 text-gray-700"
             />
           </div>
           <div className="flex flex-col">
@@ -88,7 +88,7 @@ function ChangePasswordModal({ closeModal }) {
               placeholder="Re-enter new password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              className="border p-2 text-gray-700"
             />
           </div>
         </form>

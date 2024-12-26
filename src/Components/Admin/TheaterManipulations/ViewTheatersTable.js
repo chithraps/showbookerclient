@@ -75,12 +75,16 @@ function ViewTheatersTable() {
     fetchTheaters();
     handleAddModalClose();
   };
+  const onInputChange = (e) => {
+    const { name, value } = e.target;
+    setSelectedTheater((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSaveChanges = async () => {
     try {
       const baseUrl = process.env.REACT_APP_BASE_URL;
       const theaterId = selectedTheater._id;
-      await axios.put(
+      const response = await axios.put(
         `${baseUrl}/admin/editTheater/${theaterId}`,
         selectedTheater,
         {
@@ -200,6 +204,7 @@ function ViewTheatersTable() {
           theater={selectedTheater}
           onClose={handleCloseModal}
           onSave={handleSaveChanges}
+          onInputChange={onInputChange}
         />
       )}
       {isAddModalOpen && (

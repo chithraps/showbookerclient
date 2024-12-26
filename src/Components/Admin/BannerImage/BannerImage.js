@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "../Dashboard/Navbar";
 import swal from "sweetalert";
-import { useSelector } from "react-redux";
+import { useSelector,useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { logoutSuperAdmin } from "../../../Features/AdminActions";
 
 function BannerImage() {
   const [banner, setBanner] = useState(null);
@@ -10,21 +12,39 @@ function BannerImage() {
   const [allBanners, setAllBanners] = useState([]);
   const admin = useSelector((state) => state.admin);
   const adminAccessToken = admin.adminAccessToken;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const baseUrl = process.env.REACT_APP_BASE_URL;
- 
-  useEffect(() => {    
+
+  useEffect(() => {
     const fetchAllBanners = async () => {
       try {
         const baseUrl = process.env.REACT_APP_BASE_URL;
-        const response = await axios.get(`${baseUrl}/admin/getAllBannerImages`, {
-          headers: {
-            Authorization: `Bearer ${adminAccessToken}`,
-          },
-        });
+        const response = await axios.get(
+          `${baseUrl}/admin/getAllBannerImages`,
+          {
+            headers: {
+              Authorization: `Bearer ${adminAccessToken}`,
+            },
+          }
+        );
         setAllBanners(response.data);
       } catch (error) {
         console.error("Error fetching banners", error);
-        swal("Failed", "Failed to load banners.");
+        if (error.response?.data?.message === "Unauthorized: Token has expired") {
+          swal({
+            title: "Session Expired",
+            text: "Your session has expired. Please log in again.",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+          }).then((willLogout) => {
+            if (willLogout) {
+              dispatch(logoutSuperAdmin());
+              navigate("/admin");
+            }
+          });
+        }
       }
     };
 
@@ -65,15 +85,19 @@ function BannerImage() {
 
   const handleDelete = async (id) => {
     try {
-      
-      const response = await axios.delete(`${baseUrl}/admin/deleteBannerImage/${id}`, {
-        headers: {
-          Authorization: `Bearer ${adminAccessToken}`,
-        },
-      });
+      const response = await axios.delete(
+        `${baseUrl}/admin/deleteBannerImage/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${adminAccessToken}`,
+          },
+        }
+      );
       if (response.status === 200) {
         swal("Success", response.data.message);
-        setAllBanners((prevBanners) => prevBanners.filter((banner) => banner._id !== id));
+        setAllBanners((prevBanners) =>
+          prevBanners.filter((banner) => banner._id !== id)
+        );
       }
     } catch (error) {
       console.error("Error deleting banner", error);
@@ -99,31 +123,20 @@ function BannerImage() {
           >
             Upload Banner
           </button>
-        </form>
-
-        {imageUrl && (
-          <div>
-            <h3 className="text-xl font-semibold mb-2">Uploaded Banner:</h3>
-            <img
-              src={`${baseUrl}${imageUrl}`}
-              alt="Banner"
-              className="w-24 h-24 object-cover rounded-md shadow-md mb-4"
-            />
-          </div>
-        )}
+        </form>        
 
         <h3 className="text-xl font-semibold mt-8">All Banners:</h3>
-        <div className="grid grid-cols-3 gap-4 mt-4">
+        <div className="flex flex-col gap-4 mt-4">
           {allBanners.map((banner) => (
-            <div key={banner._id} className="relative">
+            <div key={banner._id} className="flex items-center">
               <img
-                src={`${baseUrl}${banner.imageUrl}`}
+                src={`${banner.bannerUrl}`}
                 alt="Banner"
                 className="w-20 h-20 object-cover rounded-md shadow-md"
               />
               <button
                 onClick={() => handleDelete(banner._id)}
-                className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 hover:bg-red-700"
+                className="ml-12 bg-red-500 text-white rounded-full p-1 hover:bg-red-700 transform -translate-x-1 -translate-y-1"
               >
                 Delete
               </button>

@@ -10,8 +10,7 @@ function ViewUserTable() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [totalUsers, setTotalUsers] = useState(0);
-  const admin = useSelector((state) => state.admin);
-  console.log("admin and token ", admin.admin, " ", admin.adminAccessToken);
+  const admin = useSelector((state) => state.admin);  
   const adminAccessToken = admin.adminAccessToken;
   const dispatch = useDispatch();
   const navigate = useNavigate();

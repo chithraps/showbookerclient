@@ -76,6 +76,16 @@ function SignInWithEmail({ isOpen, onClose }) {
         Swal(error.response.data.message);
       } else if (error.response && error.response.data && error.response.data.message) {
         Swal(error.response.data.message);
+      }else if (
+        error.response &&
+        error.response.status === 403 &&
+        error.response.data.message === "User is blocked. Access denied."
+      ) {
+        Swal({
+          title: "Access Denied",
+          text: "Your account is blocked. Please contact support.",
+          icon: "error",
+        });
       } else {
         Swal("Failed to verify OTP. Please try again.");
       }
