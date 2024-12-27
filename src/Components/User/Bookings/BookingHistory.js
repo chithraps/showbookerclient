@@ -318,7 +318,10 @@ function BookingHistory() {
                       </button>
                     )}
                   {booking.status === "Confirmed" &&
-                    isBookingExpired(booking.showDate, booking.showTime) && (
+                    isBookingExpired(booking.showDate, booking.showTime) &&
+                    booking.seatIds.some(
+                      (seat) => seat.status !== "Canceled"
+                    ) && (
                       <button
                         onClick={() =>
                           handleRateReviewClick(booking.movieId._id)
