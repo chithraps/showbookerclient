@@ -231,8 +231,8 @@ function Payment() {
               `${process.env.REACT_APP_BASE_URL}/bookTicket`,
               bookingData
             );
-            const bookingInformation = res.data.booking;
-            console.log("booking ", bookingInformation.bookingId);
+            const bookingInfo = res.data.booking;
+            console.log("booking ", bookingInfo.bookingId);
             swal("Success", "Payment successful from Wallet!");
 
             navigate("/bookingConfirmation", {
@@ -246,6 +246,7 @@ function Payment() {
                 totalPrice,
                 totalAmount,
                 transactionId,
+                bookingInfo,
               },
             });
           } catch (error) {
