@@ -129,55 +129,56 @@ function BookingHistory() {
     setIsRateReviewModalOpen(true);
   };
   const handleCancelSeat = async (bookingId, seatId) => {
-    console.log("in cancel seat ", bookingId, " ", seatId);
-    try {
-      const baseUrl = process.env.REACT_APP_BASE_URL;
-      const response = await axios.put(
-        `${baseUrl}/cancelSeat`,
-        {
-          bookingId,
-          seatId,
-          userId,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+    swal({
+      title: "Are you sure?",
+      text: "Do you really want to cancel this seat?",
+      icon: "warning",
+      buttons: ["No", "Yes"],
+      dangerMode: true,
+    }).then(async (willCancel) => {
+      if (willCancel) {
+        try {
+          const baseUrl = process.env.REACT_APP_BASE_URL;
+          const response = await axios.put(
+            `${baseUrl}/cancelSeat`,
+            { bookingId, seatId, userId },
+            { headers: { Authorization: `Bearer ${token}` } }
+          );
+  
+          if (response.data.message === "Seat canceled successfully") {
+            swal("Success", "The seat has been canceled", "success");
+  
+            setBookingHistory((prevHistory) =>
+              prevHistory.map((booking) => {
+                if (booking._id === bookingId) {
+                  const updatedSeats = booking.seatIds.map((seat) =>
+                    seat.seatId._id === seatId
+                      ? { ...seat, status: "Canceled" }
+                      : seat
+                  );
+  
+                  const allSeatsCanceled = updatedSeats.every(
+                    (seat) => seat.status === "Canceled"
+                  );
+  
+                  return {
+                    ...booking,
+                    seatIds: updatedSeats,
+                    status: allSeatsCanceled ? "Canceled" : booking.status,
+                  };
+                }
+                return booking;
+              })
+            );
+          }
+        } catch (error) {
+          console.error("Error canceling seat:", error);
+          swal("Error", "Failed to cancel the seat. Please try again.", "error");
         }
-      );
-
-      if (response.data.message === "Seat canceled successfully") {
-        swal("success", "The seat has been canceled");
-        setBookingHistory((prevHistory) =>
-          prevHistory.map((booking) => {
-            console.log("Processing booking: ", booking);
-            if (booking._id === bookingId) {
-              console.log(
-                "Found matching booking, updating seat status for booking ID: ",
-                bookingId
-              );
-              return {
-                ...booking,
-                seatIds: booking.seatIds.map((seat) => {
-                  console.log("Processing seat: ", seat);
-                  if (seat.seatId._id === seatId) {
-                    console.log(
-                      `Found matching seat ID: ${seatId}, updating status to 'Canceled'`
-                    );
-                    return { ...seat, status: "Canceled" };
-                  }
-                  return seat;
-                }),
-              };
-            }
-            return booking;
-          })
-        );
       }
-    } catch (error) {
-      console.error("Error canceling seat:", error);
-    }
+    });
   };
+  
 
   const isBookingExpired = (showDate, showTime) => {
     try {
