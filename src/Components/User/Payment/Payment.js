@@ -141,22 +141,20 @@ function Payment() {
           icon: "warning",
           button: "OK",
         }).then(() => {
-          navigate("/"); 
+          navigate("/");
         });
-      }, 120000); 
+      }, 120000);
     };
 
     // Attach event listeners to detect user activity
     const events = ["mousemove", "keydown", "click"];
-    events.forEach((event) =>
-      window.addEventListener(event, resetIdleTimer)
-    );
-    resetIdleTimer(); 
+    events.forEach((event) => window.addEventListener(event, resetIdleTimer));
+    resetIdleTimer();
     return () => {
       events.forEach((event) =>
         window.removeEventListener(event, resetIdleTimer)
       );
-      clearTimeout(idleTimeout); 
+      clearTimeout(idleTimeout);
     };
   }, [navigate]);
 
@@ -296,6 +294,7 @@ function Payment() {
     }
   };
   const handleRazorpayPayment = async (amount) => {
+    console.log(" razor pay key id ", process.env.RAZORPAY_KEY_ID);
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_BASE_URL}/placeOrder`,
@@ -307,7 +306,7 @@ function Payment() {
       const order = response.data;
       console.log("order ", order);
       const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        key: "rzp_test_00UfVda9AoMmII",
         amount: order.amount,
         currency: order.currency,
         name: "Movie Booking",
@@ -375,6 +374,13 @@ function Payment() {
         theme: {
           color: "#F37254",
         },
+        modal: {
+          ondismiss: async function () {
+            navigate("/paymentFailure", {
+              state: { reason: "Payment window closed" },
+            });
+          },
+        },
       };
 
       const razorpay = new window.Razorpay(options);
@@ -383,6 +389,7 @@ function Payment() {
       console.error("Error creating order:", error);
     }
   };
+  
 
   return (
     <div className="h-screen mt-5">

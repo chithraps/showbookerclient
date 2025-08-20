@@ -47,6 +47,7 @@ function TheatersListForMovies() {
         },
       });
       setTheaters(response.data);
+      console.log("Fetched theaters data: ", response.data); 
     } catch (error) {
       console.error("Error fetching theaters for movie:", error);
     }

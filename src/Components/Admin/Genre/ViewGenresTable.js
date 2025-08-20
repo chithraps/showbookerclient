@@ -5,7 +5,7 @@ import EditGenreModal from "./EditGenreModal";
 import { useNavigate } from "react-router-dom";
 import { logoutSuperAdmin } from "../../../Features/AdminActions";
 import Swal from "sweetalert";
-import { useSelector,useDispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 
 function ViewGenresTable() {
   const [genres, setGenres] = useState([]);
@@ -84,6 +84,7 @@ function ViewGenresTable() {
       const baseUrl = process.env.REACT_APP_BASE_URL;
       const response = await axios.put(
         `${baseUrl}/admin/toggleBlockGenre/${genreId}`,
+        {},
         {
           headers: {
             Authorization: `Bearer ${adminAccessToken}`,

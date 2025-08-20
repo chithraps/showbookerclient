@@ -38,6 +38,7 @@ import Privacy from "./Components/User/Footer/Privacy";
 import Services from "./Components/User/Footer/Services";
 import Terms from "./Components/User/Footer/Terms";
 import ViewProfile from "./Components/User/UserProfile/ViewProfile";
+import PaymentFailure from "./Components/User/Payment/PaymentFailure";
 function App() {
   const user = useSelector((state) => state.user);
   const admin = useSelector((state) => state.admin);
@@ -88,6 +89,8 @@ function App() {
         <Route path="/payment" element={<Payment />} />
         {/* bookingConfirmation */}
         <Route path="/bookingConfirmation" element={<BookingConfirmation />} />
+        {/* Payment Failure */}
+         <Route path="/paymentFailure" element={<PaymentFailure />} />
         {/* Admin Routes */}
         <Route
           path="/admin"

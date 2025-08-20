@@ -85,7 +85,10 @@ function MoviesTable() {
       const baseUrl = process.env.REACT_APP_BASE_URL;
       const movie = movies.find((m) => m._id === movieId);
       const updatedStatus = !movie.blocked;
-      await axios.put(`${baseUrl}/admin/toggleBlockMovie/${movieId}`,{
+      await axios.put(`${baseUrl}/admin/toggleBlockMovie/${movieId}`,
+        {},
+        {
+        
         headers: {          
           Authorization: `Bearer ${adminAccessToken}`,
         }

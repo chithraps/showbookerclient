@@ -21,7 +21,7 @@ function Login() {
       });
       if (response.status === 200) {
         const { token, admin } = response.data;
-
+        console.log("token ",token," admin ",admin)
         dispatch(loginAdmin(admin, token));
         navigate("/admin/home");
       }else if(response.status === 400){

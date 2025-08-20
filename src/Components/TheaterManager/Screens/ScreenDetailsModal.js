@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import EditScreenForm from "./EditScreenForm";
 import EditLayoutForm from "../SeatingLayout/EditLayoutForm";
 import EditRowForm from "../Rows/EditRowForm";
@@ -9,8 +9,15 @@ const ScreenDetailsModal = ({ isOpen, onClose, screenDetails }) => {
   const [editingLayout, setEditingLayout] = useState(null);
   const [isEditingRow, setIsEditingRow] = useState(null);
   const [localScreenDetails, setLocalScreenDetails] = useState(screenDetails);
+  useEffect(() => {
+    if (screenDetails) {
+      setLocalScreenDetails(screenDetails);
+    }
+  }, [screenDetails]);
 
-  if (!isOpen || !screenDetails) return null;
+  console.log("localScreenDetails ",localScreenDetails)
+
+   if (!isOpen || !localScreenDetails) return null;
   const handleScreenSave = (updatedScreen) => {
     setLocalScreenDetails((prev) => ({
       ...prev,
@@ -50,202 +57,79 @@ const ScreenDetailsModal = ({ isOpen, onClose, screenDetails }) => {
           <h2 className="text-2xl font-bold mb-4 text-center">
             Screen Details
           </h2>
-          <table className="min-w-full bg-white border border-gray-200 mb-6">
-            <tbody>
-              <tr>
-                <th>Screen Number</th>
-                <th>Capacity</th>
-                <th>Sound System</th>
-                <th>Actions</th>
-              </tr>
-              <tr>
-                <td>{screenDetails.screen_number}</td>
-                <td>{screenDetails.capacity}</td>
-                <td>{screenDetails.sound_system}</td>
-                <td>
-                  <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
-                    onClick={() => setIsEditingScreen(true)}
-                  >
-                    Edit Screen
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          {isEditingScreen && (
-            <EditScreenForm
-              selectedScreen={screenDetails}
-              onSave={handleScreenSave}
-              onClose={() => setIsEditingScreen(false)}
-            />
-          )}
-
-          {/* Seating Layouts Table */}
-          <h3 className="text-xl font-semibold mb-2 text-center">
-            Seating Layouts of screen {screenDetails.screen_number}
-          </h3>
-          <table className="min-w-full bg-white border border-gray-200">
-            <thead>
-              <tr>
-                <th className="py-2 px-4 border-b text-left">Class Name</th>
-                <th className="py-2 px-4 border-b text-left">Price</th>
-                <th className="py-2 px-4 border-b text-left">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {screenDetails.seating_layout_ids &&
-              screenDetails.seating_layout_ids.length > 0 ? (
-                screenDetails.seating_layout_ids.map((layout) => (
-                  <React.Fragment key={layout._id}>
-                    <tr>
-                      <td className="py-2 px-4 border-b">
-                        {layout.class_name}
-                      </td>
-                      <td className="py-2 px-4 border-b">
-                        <div className="flex items-center">
-                          <LiaRupeeSignSolid className="mr-1" />
-                          <span>{layout.price}</span>
-                        </div>
-                      </td>
-                      <td className="py-2 px-4 border-b">
-                        <button
-                          onClick={() => handleEditClick("layout", layout._id)}
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded"
+          {localScreenDetails.seating_layout_ids.map((layout) => (
+                    <div
+                      key={layout._id}
+                      className="bg-gray-50 rounded-lg p-4 mb-6 shadow-md"
+                    >
+                      {/* Layout Header */}
+                      <div className="flex justify-normal items-center mb-6">
+                        <h5 className="text-base font-normal text-gray-700">
+                          {layout.class_name}
+                        </h5>
+                        <p className="text-gray-500 flex items-center ml-4">
+                          <LiaRupeeSignSolid /> {layout.price}
+                        </p>
+                      </div>
+          
+                      {/* Rows and Seats */}
+                      {layout.row_ids.map((row, rowIndex) => (
+                        <div
+                          key={row._id}
+                          className="flex items-center flex-wrap mb-4"
+                          style={{
+                            marginBottom:
+                              row.space > 0 && rowIndex !== layout.row_ids.length - 1
+                                ? `${row.space * 29}px`
+                                : window.innerWidth < 768
+                                ? "12px"
+                                : "18px",
+                          }}
                         >
-                          {editingLayout && editingLayout._id === layout._id
-                            ? "Cancel"
-                            : "Edit Layout"}
-                        </button>
-                      </td>
-                    </tr>
-                    {editingLayout && editingLayout._id === layout._id && (
-                      <tr>
-                        <td colSpan="3" className="py-2 px-4 border-b">
-                          <EditLayoutForm
-                            layout={editingLayout}
-                            onSave={() => setEditingLayout(null)}
-                            onClose={() => setEditingLayout(null)}
-                          />
-                        </td>
-                      </tr>
-                    )}
-
-                    {/* Rows */}
-                    <tr>
-                      <td colSpan="3" className="py-2 px-4 border-b">
-                        <h4 className="text-lg font-semibold mb-2 text-center">
-                          Rows of {layout.class_name}
-                        </h4>
-                        <table className="min-w-full bg-white border border-gray-200">
-                          <thead>
-                            <tr>
-                              <th className="py-2 px-4 border-b text-left">
-                                Row Name
-                              </th>
-                              <th className="py-2 px-4 border-b text-left">
-                                Actions
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {layout.row_ids && layout.row_ids.length > 0 ? (
-                              layout.row_ids.map((row) => (
-                                <React.Fragment key={row._id}>
-                                  <tr>
-                                    <td className="py-2 px-4 border-b">
-                                      Row: {row.row_name}
-                                    </td>
-                                    <td className="py-2 px-4 border-b">
-                                      <button
-                                        onClick={() =>
-                                          handleEditClick("row", row._id)
-                                        }
-                                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded"
-                                      >
-                                        {isEditingRow === row._id
-                                          ? "Cancel"
-                                          : "Edit Row"}
-                                      </button>
-                                    </td>
-                                  </tr>
-                                  {isEditingRow === row._id && (
-                                    <tr>
-                                      <td
-                                        colSpan="2"
-                                        className="py-2 px-4 border-b"
-                                      >
-                                        <EditRowForm
-                                          row={row}
-                                          onSave={() => {
-                                            console.log(
-                                              "Save clicked, resetting isEditingRow"
-                                            );
-                                            setIsEditingRow(null);
-                                          }}
-                                          onClose={() => {
-                                            console.log(
-                                              "Close clicked, resetting isEditingRow"
-                                            );
-                                            setIsEditingRow(null);
-                                          }}
-                                        />
-                                      </td>
-                                    </tr>
+                          <h5 className="font-medium text-gray-500 w-16 mr-4 sm:w-20 md:w-24 lg:w-32">
+                            {row.row_name}
+                          </h5>
+                          <div className="flex flex-wrap gap-2">
+                            {row.seat_ids.map((seat) => (
+                              <React.Fragment key={seat._id}>
+                               
+                                {seat.spacing > 0 &&
+                                  seat.spacingPosition === "before" && (
+                                    <div
+                                      className="inline-block"
+                                      style={{ width: `${seat.spacing * 29}px` }}
+                                    ></div>
                                   )}
-
-                                  {/* Seats */}
-                                  <tr>
-                                    <td
-                                      colSpan="2"
-                                      className="py-2 px-4 border-b"
-                                    >
-                                      <h5 className="text-sm font-semibold mb-2 text-center">
-                                        Seats in Row {row.row_name}
-                                      </h5>
-                                      <div className="grid grid-cols-12 gap-1">
-                                        {row.seat_ids &&
-                                        row.seat_ids.length > 0 ? (
-                                          row.seat_ids.map((seat) => (
-                                            <span
-                                              key={seat._id}
-                                              className="py-1 px-2 border border-gray-300 text-center rounded-md text-xs bg-gray-200"
-                                            >
-                                              {seat.seat_number}
-                                            </span>
-                                          ))
-                                        ) : (
-                                          <p className="text-gray-500">
-                                            No seats available.
-                                          </p>
-                                        )}
-                                      </div>
-                                    </td>
-                                  </tr>
-                                </React.Fragment>
-                              ))
-                            ) : (
-                              <tr>
-                                <td colSpan="2" className="py-2 px-4 border-b">
-                                  No rows available.
-                                </td>
-                              </tr>
-                            )}
-                          </tbody>
-                        </table>
-                      </td>
-                    </tr>
-                  </React.Fragment>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="py-2 px-4 border-b">
-                    No seating layouts available.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+          
+                                
+                                <span
+                                  role="button"
+                                  aria-label={`Seat ${seat.seat_number} - ${
+                                    layout.class_name
+                                  } `}
+                                  tabIndex={0}
+                                 
+                                  className={`inline-block w-6 h-6 text-center rounded border-2 cursor-pointer transition-colors duration-200 `}
+                                  ey={seat._id}
+                                  
+                                >
+                                  {seat.seat_number}
+                                </span>
+          
+                                {/* Handle spacing after the seat */}
+                                {seat.spacing > 0 && seat.spacingPosition === "after" && (
+                                  <div
+                                    className="inline-block"
+                                    style={{ width: `${seat.spacing * 29}px` }}
+                                  ></div>
+                                )}
+                              </React.Fragment>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ))}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo,useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -14,7 +14,7 @@ function ScreenLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { movieId, theaterId, screenId, showTiming, selectedDate } =
-    location.state;  
+    location.state;
   const user = useSelector((state) => state.user);
   const [userId, setUserId] = useState(null);
   const [screenDetails, setScreenDetails] = useState(null);
@@ -74,7 +74,7 @@ function ScreenLayout() {
         },
       }).then((value) => {
         if (value) {
-          navigate(-1); 
+          navigate(-1);
         }
       });
     }
@@ -124,7 +124,7 @@ function ScreenLayout() {
           }
         );
         setScreenDetails(response.data.screenDetails);
-        
+
         setBookedSeatIds(new Set(response.data.bookedSeatIds));
         console.log("Booked seats ", response.data.bookedSeatIds);
         const map = new Map();
@@ -388,17 +388,17 @@ function ScreenLayout() {
                 key={row._id}
                 className="flex items-center flex-wrap mb-4"
                 style={{
-                  marginBottom: 
+                  marginBottom:
                     row.space > 0 && rowIndex !== layout.row_ids.length - 1
                       ? `${row.space * 29}px`
                       : window.innerWidth < 768
-                      ? "12px" 
-                      : "18px", 
+                      ? "12px"
+                      : "18px",
                 }}
               >
                 <h5 className="font-medium text-gray-500 w-16 mr-4 sm:w-20 md:w-24 lg:w-32">
-      {row.row_name}
-    </h5>
+                  {row.row_name}
+                </h5>
                 <div className="flex flex-wrap gap-2">
                   {row.seat_ids.map((seat) => (
                     <React.Fragment key={seat._id}>

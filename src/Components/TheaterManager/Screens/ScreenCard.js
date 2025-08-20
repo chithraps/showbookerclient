@@ -76,6 +76,8 @@ function ScreenCard() {
 
       const { screenDetails } = response.data;
 
+     // console.log(" screen details of screen ",screenDetails)
+
       setScreenDetails(screenDetails);
     } catch (error) {
       console.error("Error fetching screen details:", error);

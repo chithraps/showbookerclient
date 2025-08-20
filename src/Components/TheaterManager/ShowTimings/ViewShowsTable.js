@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import Swal from "sweetalert";
 import AddShowTimingModal from "./AddShowTimingModal";
 import EditShowTimingsModal from "./EditShowTimingsModal";
 import { useSelector, useDispatch } from "react-redux";
@@ -71,14 +72,22 @@ function ViewShowsTable() {
   const handleBlockToggle = async (timingId) => {
     try {
       const baseUrl = process.env.REACT_APP_BASE_URL;
-      await axios.patch(`${baseUrl}/tmAdmin/blockShowTiming/${timingId}`, {
+      await axios.patch(`${baseUrl}/tmAdmin/blockShowTiming/${timingId}`,
+        {},
+         {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       fetchShowTimings();
+      Swal("Updated!", "The movie block status has been updated.", "success");
     } catch (error) {
       console.error("Error blocking show timing:", error);
+      Swal(
+        "Error",
+        "An error occurred while updating the movie block status.",
+        "error"
+      );
     }
   };
 

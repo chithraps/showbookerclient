@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from "react-redux";
 import { FaTimes } from 'react-icons/fa';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Import the useNavigate hook
+import { useNavigate } from 'react-router-dom'; 
 import { selectLocation } from "../../../Features/LocationSlice";
 
 const SearchModal = ({ isOpen, onClose }) => {
@@ -12,7 +12,7 @@ const SearchModal = ({ isOpen, onClose }) => {
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [languageFilter, setLanguageFilter] = useState('');
 
-  const navigate = useNavigate(); // Initialize navigate
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     if (isOpen) {
