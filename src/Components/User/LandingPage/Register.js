@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Modal from "react-modal";
 import { useGoogleLogin } from "@react-oauth/google";
-import axios from "axios";
+import { apiRequest } from "../../Utils/api";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../../Features/UserActions";
@@ -45,34 +45,36 @@ function Register({ isOpen, onClose }) {
   };
 
   const login = useGoogleLogin({
-    onSuccess: async (tokenResponse) => {
-      try {
-        const baseUrl = process.env.REACT_APP_BASE_URL;
-        const response = await axios.post(`${baseUrl}/signIn`, {
-          type: "google",
-          googleAccessToken: tokenResponse.access_token,
-        });
+  onSuccess: async (tokenResponse) => {
+    const response = await apiRequest("POST", "/signIn", {
+      type: "google",
+      googleAccessToken: tokenResponse.access_token,
+    });
 
-        const { token, user } = response.data;
-        console.log(user, token);
-        dispatch(loginUser(user, token));
-        navigate("/home");
-      } catch (error) {
-        console.log("Error in signIn : ", error);
-        if (
-          error.response &&
-          error.response.status === 403 &&
-          error.response.data.message === "User is blocked. Access denied."
-        ) {
-          swal({
-            title: "Access Denied",
-            text: "Your account is blocked. Please contact support.",
-            icon: "error",
-          });
-        }
+    if (response.success) {
+      const { token, user } = response.data;
+      console.log(user, token);
+
+      dispatch(loginUser(user, token));
+      navigate("/home");
+    } else {
+      console.log("Error in signIn:", response.message);
+
+      if (
+        response.status === 403 &&
+        response.message === "User is blocked. Access denied."
+      ) {
+        swal({
+          title: "Access Denied",
+          text: "Your account is blocked. Please contact support.",
+          icon: "error",
+        });
+      } else {
+        swal(response.message || "Login failed. Please try again.");
       }
-    },
-  });
+    }
+  },
+});
 
   const openEmailModal = () => {
     setIsEmailModalOpen(true);

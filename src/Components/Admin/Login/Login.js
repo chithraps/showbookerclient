@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { apiRequest } from "../../Utils/adminApi";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginAdmin } from "../../../Features/AdminActions";
@@ -14,23 +15,21 @@ function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const baseUrl = process.env.REACT_APP_BASE_URL;
-      const response = await axios.post(`${baseUrl}/admin/login`, {
-        email,
-        password,
-      });
-      if (response.status === 200) {
-        const { token, admin } = response.data;
-        console.log("token ",token," admin ",admin)
-        dispatch(loginAdmin(admin, token));
-        navigate("/admin/home");
-      }else if(response.status === 400){
-        setError(response.data.message)
-      }
-    } catch (error) {
-      console.log(error.response.data.message)
-      setError(error.response.data.message)
+    const response = await apiRequest("post", "/admin/login", {
+      email,
+      password,
+    });
+
+    if (response.success) {
+      const { token, admin } = response.data;
+      dispatch(loginAdmin(admin, token));
+      navigate("/admin/home");
+    } else {
+      setError(response.message);
     }
+  } catch (error) {
+    setError("Login failed");
+  }
   };
 
   return (

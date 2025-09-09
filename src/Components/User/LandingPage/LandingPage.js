@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { apiRequest } from "../../Utils/api";
 import Header from "./Header"; 
 import { useSelector } from "react-redux";
 import Footer from "../Footer/Footer";
@@ -16,28 +17,33 @@ function LandingPage() {
   const baseUrl = process.env.REACT_APP_BASE_URL;
   useEffect(() => {
     const fetchMovies = async () => {
-      try {
-        
-        const response = await axios.get(
-          `${baseUrl}/fetchNovwShowingMovies?location=${location}`
-        );
-        setMovies(response.data || []);       
-      } catch (error) {
-        console.error("Error fetching movies:", error);
-      }
-    };
-    const fetchBanners = async () => {
-      try {
-        const baseUrl = process.env.REACT_APP_BASE_URL;
-        const response = await axios.get(`${baseUrl}/getBannerImages`);
-        setBanners(response.data || []);
-      } catch (error) { 
-        console.error("Error fetching banners:", error);
-      }
-    };
+    const response = await apiRequest(
+      "GET",
+      "/fetchNovwShowingMovies",
+      {},
+      {},
+      { location } 
+    );
 
-    fetchMovies();
-    fetchBanners();
+    if (response.success) {
+      setMovies(response.data || []);
+    } else {
+      console.error("Error fetching movies:", response.message);
+    }
+  };
+
+  const fetchBanners = async () => {
+    const response = await apiRequest("GET", "/getBannerImages");
+
+    if (response.success) {
+      setBanners(response.data || []);
+    } else {
+      console.error("Error fetching banners:", response.message);
+    }
+  };
+
+  fetchMovies();
+  fetchBanners();
   }, [location]);
   const bannerSettings = {
     dots: true,

@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import axios from 'axios';
 import Modal from "react-modal";
 import { IoMdClose } from "react-icons/io";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { loginUser } from "../../../Features/UserActions";
-import Swal from 'sweetalert';
+import Swal from "sweetalert";
+import { apiRequest } from "../../Utils/api";
 
 const customStyles = {
   content: {
@@ -35,51 +35,39 @@ function SignInWithEmail({ isOpen, onClose }) {
   const navigate = useNavigate();
 
   const handleContinue = async () => {
-    try {
-      const baseUrl = process.env.REACT_APP_BASE_URL;
-      const response = await axios.post(`${baseUrl}/signIn`, {
-        type: "email",
-        email,
-      });
+    const response = await apiRequest("POST", "/signIn", {
+      type: "email",
+      email,
+    });
 
-      if (response.status === 200) {
-        setOtpModalOpen(true);
-      }
-    } catch (error) {
-      console.error("Error sending OTP:", error);
+    if (response.success) {
+      setOtpModalOpen(true);
+    } else {
+      console.error("Error sending OTP:", response.message);
     }
   };
 
   const handleOtpSubmit = async () => {
-    try {
-      const baseUrl = process.env.REACT_APP_BASE_URL;
-      const response = await axios.post(`${baseUrl}/verify-otp`, {
-        email,
-        otp,
-      });
-  
-      if (response.status === 200) {
-        console.log("OTP verified, user signed in:", response.data);
-        const { token, user } = response.data;
-        setOtpModalOpen(false);
-        onClose(); // Close the main modal
-  
-        console.log(user, token,' user and token');
-        dispatch(loginUser(user, token));
-        navigate('/home');
-      }
-    } catch (error) {
-      console.error("Error verifying OTP:", error);
-      if (error.response && error.response.data && error.response.data.message === "Invalid or expired OTP") {
+    const response = await apiRequest("POST", "/verify-otp", { email, otp });
+
+    if (response.success) {
+      console.log("OTP verified, user signed in:", response.data);
+      const { token, user } = response.data;
+
+      setOtpModalOpen(false);
+      onClose();
+
+      console.log(user, token, " user and token");
+      dispatch(loginUser(user, token));
+      navigate("/home");
+    } else {
+      if (response.message === "Invalid or expired OTP") {
         setIsOtpExpired(true);
         console.log("OTP expired. Setting isOtpExpired to true.");
-        Swal(error.response.data.message);
-      } else if (error.response && error.response.data && error.response.data.message) {
-        Swal(error.response.data.message);
-      }else if (
-        error.response &&
-        error.response.status === 403 &&
-        error.response.data.message === "User is blocked. Access denied."
+        Swal(response.message);
+      } else if (
+        response.status === 403 &&
+        response.message === "User is blocked. Access denied."
       ) {
         Swal({
           title: "Access Denied",
@@ -87,27 +75,24 @@ function SignInWithEmail({ isOpen, onClose }) {
           icon: "error",
         });
       } else {
-        Swal("Failed to verify OTP. Please try again.");
+        Swal(response.message || "Failed to verify OTP. Please try again.");
       }
     }
   };
 
   const handleResendOtp = async () => {
-    try {
-      console.log("In handleResendOtp, email:", email);
-      const baseUrl = process.env.REACT_APP_BASE_URL;
-      const response = await axios.post(`${baseUrl}/resend-otp`, {
-        email,
-      });
+    console.log("In handleResendOtp, email:", email);
 
-      if (response.status === 200) {
-        Swal("OTP resent successfully.");
-        setIsOtpExpired(false); // Reset the OTP expiration state
-        setOtp(""); // Clear the current OTP input
-        console.log("Resent OTP. Setting isOtpExpired to false.");
-      }
-    } catch (error) {
-      console.error("Error resending OTP:", error);
+    const response = await apiRequest("POST", "/resend-otp", { email });
+
+    if (response.success) {
+      Swal("OTP resent successfully.");
+      setIsOtpExpired(false); 
+      setOtp(""); 
+      console.log("Resent OTP. Setting isOtpExpired to false.");
+    } else {
+      console.error("Error resending OTP:", response.message);
+      Swal(response.message || "Failed to resend OTP. Please try again.");
     }
   };
 
@@ -123,7 +108,10 @@ function SignInWithEmail({ isOpen, onClose }) {
           <h2 className="text-lg font-semibold text-center flex-grow">
             Sign in with Email
           </h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600"
+          >
             <IoMdClose />
           </button>
         </div>
@@ -156,7 +144,10 @@ function SignInWithEmail({ isOpen, onClose }) {
           <h2 className="text-lg font-semibold text-center flex-grow">
             Enter OTP
           </h2>
-          <button onClick={() => setOtpModalOpen(false)} className="text-gray-400 hover:text-gray-600">
+          <button
+            onClick={() => setOtpModalOpen(false)}
+            className="text-gray-400 hover:text-gray-600"
+          >
             <IoMdClose />
           </button>
         </div>
